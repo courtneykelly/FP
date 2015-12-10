@@ -18,6 +18,7 @@ typedef struct pig {
 
 void drawpig(int,int);
 void animatepig(pig_t pig[], int, int, int);
+void mouseEffect(pig_t pig[], int);
 
 int main(void){
 
@@ -33,7 +34,7 @@ int main(void){
   for(i=0;i<5;i++) {
     pig[i].xcenter=rand() % width;
     pig[i].ycenter=rand() % height;
-    pig[i].vx= randomSpeeds[rand() % 2];
+    pig[i].vx= randomSpeeds[rand() % 4];
     pig[i].vy= randomSpeeds[rand() % 4];
   }
 
@@ -63,6 +64,8 @@ void drawpig(int xcenter, int ycenter){
 
 void animatepig(pig_t pig[], int i, int width, int height){
 
+  int x;
+
   drawpig(pig[i].xcenter,pig[i].ycenter);
   gfx_flush();
   pig[i].xcenter=pig[i].xcenter + pig[i].vx;
@@ -78,10 +81,42 @@ void animatepig(pig_t pig[], int i, int width, int height){
   else if( pig[i].ycenter <= 20)
     pig[i].vy = -pig[i].vy;
 
+  //pig collision detect
+  for(x=(i+1);x<4;x++){
+    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
+      pig[i].vx = - pig[i].vx;
+      pig[i].vy = - pig[i].vy;
+      }
+    }
+  for(x=0;x<i;x++){
+    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
+      pig[i].vx = - pig[i].vx;
+      pig[i].vy = - pig[i].vy;
+      }
+    }
 
    gfx_flush();
    usleep(2000);
 
+   mouseEffect(pig, i);
 
                                                   
  }
+
+void mouseEffect(pig_t pig[], int i){
+
+  //get mouse position
+  double xmouse = gfx_xpos();
+  double ymouse = gfx_ypos();
+  int event;
+
+  //if(gfx_event_waiting()) {
+  //event=gfx_wait();
+  //if(event==1){
+      if((abs(xmouse - pig[i].xcenter) <= 50) && (abs(ymouse - pig[i].ycenter) <= 50)) {
+	pig[i].vx = - pig[i].vx;
+	pig[i].vy = - pig[i].vy;
+      }
+      //}
+      //}
+}
