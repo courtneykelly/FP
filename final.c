@@ -17,7 +17,7 @@ typedef struct pig {
 } pig_t;
 
 void drawpig(int,int);
-void animatepig(sheep_t sheep[], int, int, int);
+void animatepig(pig_t pig[], int, int, int);
 
 int main(void){
 
@@ -25,8 +25,8 @@ int main(void){
   int width = 750;
   int i;
   int loop=1;
-  double randomSpeeds[3]= {0,-1,1};
-  sheep_t pig[5];
+  double randomSpeeds[5]= {1,-1,1,0.5,-0.5};
+  pig_t pig[5];
   gfx_open(width,height,"Save the Swine");
 
   //initial position and speed of pig 
@@ -34,7 +34,7 @@ int main(void){
     pig[i].xcenter=rand() % width;
     pig[i].ycenter=rand() % height;
     pig[i].vx= randomSpeeds[rand() % 2];
-    pig[i].vy= randomSpeeds[rand() % 2];
+    pig[i].vy= randomSpeeds[rand() % 4];
   }
 
   // Animation Loop
@@ -48,6 +48,7 @@ int main(void){
 }
 
 void drawpig(int xcenter, int ycenter){
+  gfx_color(238,70,215);
   gfx_circle(xcenter,ycenter,20);
   gfx_circle(xcenter,ycenter,10);
   gfx_circle(xcenter+3,ycenter-2,2);
@@ -64,8 +65,8 @@ void animatepig(pig_t pig[], int i, int width, int height){
 
   drawpig(pig[i].xcenter,pig[i].ycenter);
   gfx_flush();
-  pig[i].xcenter=pig[i].xcenter + pig[i].vx * 0.1;
-  pig[i].ycenter=pig[i].ycenter + pig[i].vy * 0.1;
+  pig[i].xcenter=pig[i].xcenter + pig[i].vx;
+  pig[i].ycenter=pig[i].ycenter + pig[i].vy;
 
   //wall collision detect
   if(pig[i].xcenter >= width)
@@ -77,7 +78,10 @@ void animatepig(pig_t pig[], int i, int width, int height){
   else if( pig[i].ycenter <= 20)
     pig[i].vy = -pig[i].vy;
 
+
    gfx_flush();
    usleep(2000);
+
+
                                                   
  }
