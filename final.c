@@ -31,8 +31,9 @@ int main(void){
 
   double height= 750;
   double width = 750;
-  int i, pigsSaved = 0, pigsKilled = 0;
+  int i, pigsSaved=0, pigsKilled=0;
   int loop=1;
+
   int numPigs = 4;
   pig_t pig[numPigs];
   gfx_open(width,height,"Save the Swine");
@@ -49,10 +50,10 @@ int main(void){
   // Animation Loop
     while(loop) {
       gfx_clear();
-      drawWolf(250,250);
-      colorFarm();
-      displayStats(pigsSaved, pigsKilled);
-      for(i=0;i<numPigs;i++) {
+      //colorFarm();
+      displayStats(pigsSaved,pigsKilled);
+      drawWolf(375,375);
+      for (i=0; i<numPigs; i++) {
         pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
       }
       /*if(pigsSaved == numPigs) {
@@ -290,9 +291,6 @@ void fern(double xi, double yi, double length, double theta) {
 }
 void drawWolf(int x, int y) {
   int n;
-  // Blue
-    gfx_color(0,255,255);
-    gfx_fill_rectangle(0,0,500,500);
   // Grey
     gfx_color(192,192,192);
     for (n=0; n<5; n++) {
