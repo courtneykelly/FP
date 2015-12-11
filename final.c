@@ -10,32 +10,32 @@
 #include "gfx4.h"
 
 typedef struct pig {
-  int xcenter;
-  int ycenter;
+  double xcenter;
+  double ycenter;
   double vx;
   double vy;
 } pig_t;
 
-void drawpig(int,int);
-void animatepig(pig_t pig[], int, int, int);
-void mouseEffect(pig_t pig[], int);
+void drawpig(double,double);
+void animatepig(pig_t pig[], int, double, double);
+void mouseEffect(pig_t pig[]);
 
 int main(void){
 
-  int height= 750;
-  int width = 750;
+  double height= 700;
+  double width = 750;
   int i;
   int loop=1;
-  double randomSpeeds[5]= {1,-1,1,0.5,-0.5};
+  //double randomSpeeds[5]= {1,-1,1,0.5,-0.5};
   pig_t pig[5];
   gfx_open(width,height,"Save the Swine");
 
   //initial position and speed of pig 
   for(i=0;i<5;i++) {
-    pig[i].xcenter=rand() % width;
-    pig[i].ycenter=rand() % height;
-    pig[i].vx= randomSpeeds[rand() % 4];
-    pig[i].vy= randomSpeeds[rand() % 4];
+    pig[i].xcenter=rand() % 750;
+    pig[i].ycenter=rand() % 750;
+    pig[i].vx= rand() % 10 -5;//randomSpeeds[rand() % 4];
+    pig[i].vy= rand() % 10 -5;//randomSpeeds[rand() % 4];
   }
 
   // Animation Loop
@@ -48,7 +48,7 @@ int main(void){
 
 }
 
-void drawpig(int xcenter, int ycenter){
+void drawpig(double xcenter, double ycenter){
   gfx_color(238,70,215);
   gfx_circle(xcenter,ycenter,20);
   gfx_circle(xcenter,ycenter,10);
@@ -62,21 +62,22 @@ void drawpig(int xcenter, int ycenter){
 
 }
 
-void animatepig(pig_t pig[], int i, int width, int height){
+void animatepig(pig_t pig[], int i, double width, double height){
 
   int x;
+  double dt=.3;
 
   drawpig(pig[i].xcenter,pig[i].ycenter);
   gfx_flush();
-  pig[i].xcenter=pig[i].xcenter + pig[i].vx;
-  pig[i].ycenter=pig[i].ycenter + pig[i].vy;
+  pig[i].xcenter=pig[i].xcenter + pig[i].vx*dt;
+  pig[i].ycenter=pig[i].ycenter + pig[i].vy*dt;
 
   //wall collision detect
-  if(pig[i].xcenter >= width)
+  if(pig[i].xcenter >= (width-20))
     pig[i].vx = - pig[i].vx;
   else if( pig[i].xcenter <= 20)
     pig[i].vx = -pig[i].vx;
-  else if(pig[i].ycenter >= height)
+  else if(pig[i].ycenter >= (height-20))
     pig[i].vy = -pig[i].vy;
   else if( pig[i].ycenter <= 20)
     pig[i].vy = -pig[i].vy;
@@ -96,27 +97,30 @@ void animatepig(pig_t pig[], int i, int width, int height){
     }
 
    gfx_flush();
-   usleep(2000);
+   usleep(1000);
 
-   mouseEffect(pig, i);
+   mouseEffect(pig);
 
                                                   
  }
 
-void mouseEffect(pig_t pig[], int i){
+void mouseEffect(pig_t pig[]){
 
   //get mouse position
   double xmouse;
   double ymouse;
-  int event;
+  int event,x;
 
   if(gfx_event_waiting()) {
     event=gfx_wait();
     if(event==1){
       xmouse = gfx_xpos();
       ymouse = gfx_ypos();
-      if((abs(xmouse - pig[i].xcenter) <= 100) && (abs(ymouse - pig[i].ycenter) <= 100)) {
-	pig[i].vx = - pig[i].vx;
+      for(x=0;x<4;x++) {
+	if((abs(xmouse - pig[x].xcenter) <= 100) && (abs(ymouse - pig[x].ycenter) <= 100)) {
+	  pig[x].vx = (pig[x].xcenter - xmouse) * 0.1;
+	  pig[x].vy = (ymouse - pig[x].ycenter) * 0.1;
+	}
       }
     }
   }
