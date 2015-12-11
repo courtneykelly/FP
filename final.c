@@ -31,7 +31,7 @@ int main(void){
   //double randomSpeeds[5]= {1,-1,1,0.5,-0.5};
   pig_t pig[5];
   gfx_open(width,height,"Save the Swine");
-  void colorFarm();
+  colorFarm();
 
   //initial position and speed of pig 
   for(i=0;i<5;i++) {
@@ -44,6 +44,7 @@ int main(void){
   // Animation Loop
     while(loop) {
       gfx_clear();
+      colorFarm();
       for(i=0;i<4;i++) {
         animatepig(pig,i,width,height);
       }
@@ -186,6 +187,9 @@ void colorFarm() {
     for (n=75; n<550; n+=75) {
       fern(730,n,50, 3*M_PI/2);
     }
+
+  gfx_flush();
+
 }
 void fern(double xi, double yi, double length, double theta) {
 
