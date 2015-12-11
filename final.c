@@ -57,9 +57,9 @@ int main(void){
 	displayEndScreen(numPigs,pigsSaved,pigsKilled);
 	numPigs+=3;
 	pigsSaved=0;
-	pigsKilled = 0;*/
+	pigsKilled = 0;
     
-	}
+	}*/
     }
 
 }
