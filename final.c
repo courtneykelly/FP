@@ -16,39 +16,78 @@ typedef struct pig {
   double vy;
 } pig_t;
 
+char *num2str(int);
+void displayStats(int,int);
+void displayEndScreen(int, int, int);
 void drawpig(double,double);
-void animatepig(pig_t pig[], int, double, double);
-void mouseEffect(pig_t pig[]);
+int animatepig(pig_t pig[], int, double, double,int,int,int);
+void mouseEffect(pig_t pig[],int);
+int checklocation(pig_t pig[],int ,int);
 void fern(double, double, double, double);
 void colorFarm();
 
 int main(void){
 
-  double height= 700;
+  double height= 750;
   double width = 750;
-  int i;
+  int i, pigsSaved = 0, pigsKilled = 0;
   int loop=1;
-  //double randomSpeeds[5]= {1,-1,1,0.5,-0.5};
-  pig_t pig[5];
+  int numPigs = 4;
+  pig_t pig[numPigs];
   gfx_open(width,height,"Save the Swine");
-  colorFarm();
+  //colorFarm();
 
   //initial position and speed of pig 
-  for(i=0;i<5;i++) {
+  for(i=0;i<numPigs;i++) {
     pig[i].xcenter=rand() % 750;
     pig[i].ycenter=rand() % 750;
-    pig[i].vx= rand() % 10 -5;//randomSpeeds[rand() % 4];
-    pig[i].vy= rand() % 10 -5;//randomSpeeds[rand() % 4];
+    pig[i].vx= rand() % 10 -5;
+    pig[i].vy= rand() % 10 -5;
   }
 
   // Animation Loop
     while(loop) {
       gfx_clear();
-      colorFarm();
-      for(i=0;i<4;i++) {
-        animatepig(pig,i,width,height);
+      //colorFarm();
+      displayStats(pigsSaved, pigsKilled);
+      for(i=0;i<numPigs;i++) {
+        pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
       }
+      /*if(pigsSaved == numPigs) {
+	displayEndScreen(numPigs,pigsSaved,pigsKilled);
+	numPigs+=3;
+	pigsSaved=0;
+	pigsKilled = 0;*/
+    
+	}
     }
+
+}
+
+char *num2str(int number)
+{
+  static char a[10], *string=a;
+  snprintf(string,10,"%d",number);
+  return string;
+}
+
+void displayStats(int pigsSaved, int pigsKilled) {
+  gfx_color(255,0,0);
+  char *saveStr, *killStr;
+
+  saveStr = num2str(pigsSaved);
+  gfx_text(10, 10, "Pigs Saved:");
+  gfx_text(20, 30, saveStr);
+
+  killStr = num2str(pigsKilled);
+  gfx_text(650, 10, "Pigs Killed:");
+  gfx_text(660, 30, killStr);
+}
+
+void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){
+  if(numPigs == pigsSaved) {  
+    gfx_text(375, 375, "Congratulations!! You passed the level!");
+  }
 
 }
 
@@ -66,7 +105,7 @@ void drawpig(double xcenter, double ycenter){
 
 }
 
-void animatepig(pig_t pig[], int i, double width, double height){
+int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, int pigsKilled,int numPigs){
 
   int x;
   double dt=.3;
@@ -87,7 +126,7 @@ void animatepig(pig_t pig[], int i, double width, double height){
     pig[i].vy = -pig[i].vy;
 
   //pig collision detect
-  for(x=(i+1);x<4;x++){
+  for(x=(i+1);x<numPigs;x++){
     if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
       pig[i].vx = - pig[i].vx;
       pig[i].vy = - pig[i].vy;
@@ -103,12 +142,28 @@ void animatepig(pig_t pig[], int i, double width, double height){
    gfx_flush();
    usleep(1000);
 
-   mouseEffect(pig);
+   pigsSaved = checklocation(pig,i,pigsSaved);
 
+   mouseEffect(pig,numPigs);
+
+   return pigsSaved;
                                                   
  }
 
-void mouseEffect(pig_t pig[]){
+int checklocation(pig_t pig[],int i,int pigsSaved){
+
+  if((pig[i].xcenter >= 500) && (pig[i].ycenter >= 550)) {
+    pig[i].xcenter = 800;
+    pig[i].ycenter = 0;
+    pig[i].vx = 0;
+    pig[i].vy = 0;
+    pigsSaved++;
+  }
+
+  return pigsSaved;
+}
+
+void mouseEffect(pig_t pig[],int numPigs){
 
   //get mouse position
   double xmouse;
@@ -120,15 +175,27 @@ void mouseEffect(pig_t pig[]){
     if(event==1){
       xmouse = gfx_xpos();
       ymouse = gfx_ypos();
-      for(x=0;x<4;x++) {
+      for(x=0;x<numPigs;x++) {
 	if((abs(xmouse - pig[x].xcenter) <= 100) && (abs(ymouse - pig[x].ycenter) <= 100)) {
-	  pig[x].vx = (pig[x].xcenter - xmouse) * 0.1;
-	  pig[x].vy = (ymouse - pig[x].ycenter) * 0.1;
+	  if(pig[x].ycenter != ymouse){
+	    pig[x].vy = - ((ymouse - pig[x].ycenter) / (xmouse - pig[x].xcenter));
+	    pig[x].vx = 1; 
+	  }
+	  else if((pig[x].ycenter == ymouse) && (xmouse > pig[x].xcenter)) {
+	    pig[x].vy = 0;
+	    pig[x].vx = -1;
+	  }
+	  else if((pig[x].ycenter == ymouse) &&(xmouse < pig[x].xcenter)) {
+            pig[x].vy = 0;
+            pig[x].vx = 1;
+          }
 	}
       }
     }
   }
 }
+
+
 void colorFarm() {
   // polygon array
     XPoint xp = {300,450};
