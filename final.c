@@ -106,17 +106,18 @@ void animatepig(pig_t pig[], int i, int width, int height){
 void mouseEffect(pig_t pig[], int i){
 
   //get mouse position
-  double xmouse = gfx_xpos();
-  double ymouse = gfx_ypos();
+  double xmouse;
+  double ymouse;
   int event;
 
-  //if(gfx_event_waiting()) {
-  //event=gfx_wait();
-  //if(event==1){
-      if((abs(xmouse - pig[i].xcenter) <= 50) && (abs(ymouse - pig[i].ycenter) <= 50)) {
+  if(gfx_event_waiting()) {
+    event=gfx_wait();
+    if(event==1){
+      xmouse = gfx_xpos();
+      ymouse = gfx_ypos();
+      if((abs(xmouse - pig[i].xcenter) <= 100) && (abs(ymouse - pig[i].ycenter) <= 100)) {
 	pig[i].vx = - pig[i].vx;
-	pig[i].vy = - pig[i].vy;
       }
-      //}
-      //}
+    }
+  }
 }
