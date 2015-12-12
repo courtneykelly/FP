@@ -16,6 +16,13 @@ typedef struct pig {
   double vy;
 } pig_t;
 
+typedef struct wolf {
+  double xcenter;
+    double ycenter;
+    double vx;
+    double vy;
+} wolf_t;
+
 char *num2str(int);
 void displayStats(int,int);
 void displayEndScreen(int, int, int);
@@ -26,39 +33,51 @@ int checklocation(pig_t pig[],int ,int);
 void fern(double, double, double, double);
 void colorFarm();
 void drawWolf(int, int);
+void animateWolf(wolf_t wolf[], int, double, double, int);
 
 int main(void){
 
-  double height= 750;
-  double width = 750;
-  int i, pigsSaved=0, pigsKilled=0;
-  int loop=1;
-
-  int numPigs = 4;
-  pig_t pig[numPigs];
-  gfx_open(width,height,"Save the Swine");
-  colorFarm();
+  // Initialize Variables and Window
+    double height= 750;
+    double width = 750;
+    gfx_open(width,height,"Save the Swine");
+    int i, n, loop=1; 
+    int pigsSaved=0, pigsKilled=0, numPigs = 4, numWolves = 2;
+    pig_t pig[numPigs];
+    wolf_t wolf[numWolves];
+    double random[3] = {1,1,-1};
 
   //initial position and speed of pig 
-  for(i=0;i<numPigs;i++) {
-    pig[i].xcenter=rand() % 750;
-    pig[i].ycenter=rand() % 750;
-    pig[i].vx= rand() % 2 -1;
-    pig[i].vy= rand() % 2 -1;
-  }
+    for(i=0;i<numPigs;i++) {
+      pig[i].xcenter=rand() % 750;
+      pig[i].ycenter=rand() % 750;
+      pig[i].vx= random[rand() % 2];
+      pig[i].vy= random[rand() % 2];
+    }
+
+  // Initial Position and Speed of the Wolves
+    for (n=0; n<numWolves; n++) {
+      wolf[n].xcenter = rand() % 750;
+      wolf[n].ycenter = rand() % 750;
+      wolf[n].vx = .5*random[rand() % 2];
+      wolf[n].vy = .5*random[rand() % 2];
+    }
 
   // Animation Loop
-  while(loop) {
-    gfx_clear();
-    //colorFarm();
-      displayStats(pigsSaved,pigsKilled);
-      drawWolf(375,375);
-      for (i=0; i<numPigs; i++) {
-        pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
-      }
-      if(pigsSaved == numPigs) {
-	displayEndScreen(numPigs,pigsSaved,pigsKilled);
-	}
+    while(loop) {
+      gfx_clear();
+      //colorFarm();
+        displayStats(pigsSaved,pigsKilled);
+        drawWolf(375,375);
+        for (i=0; i<numPigs; i++) {
+          pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
+        }
+        for (n=0; n<numWolves; n++) {
+          animateWolf(wolf,n,width,height,numWolves);
+        }
+        if(pigsSaved == numPigs) {
+          displayEndScreen(numPigs,pigsSaved,pigsKilled);
+        }
     }
 
 
@@ -161,7 +180,45 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
    return pigsSaved;
                                                   
  }
+void animateWolf( wolf_t wolf[], int i, double width, double height, int numWolves) {
+  int x;
+  double dt = 3;
+  
+  drawWolf(wolf[i].xcenter, wolf[i].ycenter);
+  gfx_flush();
+  wolf[i].xcenter = wolf[i].xcenter + wolf[i].vx*dt;
+  wolf[i].ycenter = wolf[i].ycenter + wolf[i].vy*dt;
 
+  double random[3] = {1,1,-1};
+
+  // Wolf Collision Detect
+    for (x=(i+1); x<numWolves; x++) {
+      if ((abs(wolf[i].xcenter - wolf[x].xcenter) <= 50) && (abs(wolf[i].ycenter - wolf[x].ycenter) <= 50)){
+        wolf[i].vx = random[rand() % 2];
+        wolf[i].vy = random[rand() % 2];
+      }
+    }
+    for (x=0; x<i; x++) {
+      if ((abs(wolf[i].xcenter - wolf[x].xcenter) <= 50) && (abs(wolf[i].ycenter - wolf[x].ycenter) <= 50)){
+        wolf[i].vx = random[rand() % 2];
+        wolf[i].vy = random[rand() % 2];
+      }
+    }
+
+  // Wall Collision Detect
+    if (wolf[i].xcenter >= (width-20))
+      wolf[i].vx = -wolf[i].vx;
+    else if( wolf[i].xcenter <= 20)
+      wolf[i].vx = -wolf[i].vx;
+    else if(wolf[i].ycenter >= (height-20))
+      wolf[i].vy = -wolf[i].vy;
+    else if( wolf[i].ycenter <= 20)
+      wolf[i].vy = -wolf[i].vy;
+
+  gfx_flush();
+  usleep(10000);
+
+}
 int checklocation(pig_t pig[],int i,int pigsSaved){
 
   if((pig[i].xcenter >= 500) && (pig[i].ycenter >= 550)) {
@@ -322,7 +379,7 @@ void fern(double xi, double yi, double length, double theta) {
                 fern(x3, y3, length/3.5, theta-M_PI/6);
                 fern(x3, y3, length/3.5, theta+M_PI/6);
 }
-void drawWolf(int x, int y) {
+void drawWolf(double x, double y) {
   int n;
   // Grey
     gfx_color(192,192,192);
