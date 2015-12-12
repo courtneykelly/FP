@@ -33,8 +33,8 @@ int checklocation(pig_t pig[],int ,int);
 void fern(double, double, double, double);
 void colorFarm();
 void drawWolf(double, double);
-void animateWolf(wolf_t wolf[], int, double, double, int);
-int checkWolfLocation(pig_t pig[], wolf_t wolf[], int,int, pig_t pig[], int, int, int);
+void animateWolf(wolf_t wolf[], int, double, double, int, pig_t pig[], int, int);
+int checkWolfLocation(pig_t pig[], wolf_t wolf[], int,int, int);
 
 int main(void){
 
