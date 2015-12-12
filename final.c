@@ -54,16 +54,16 @@ int main(void){
 
       //initial position and speed of pig 
         for(i=0;i<numPigs;i++) {
-          pig[i].xcenter=rand() % 750;
-          pig[i].ycenter=rand() % 750;
+          pig[i].xcenter=rand() % 680 +30;
+          pig[i].ycenter=rand() % 420 +30;
           pig[i].vx= random[rand() % 1];
           pig[i].vy= random[rand() % 1];
         }
 
       // Initial Position and Speed of the Wolves
         for (n=0; n<numWolves; n++) {
-          wolf[n].xcenter = rand() % 750;
-          wolf[n].ycenter = rand() % 750;
+          wolf[n].xcenter = rand() % 680 +30;
+          wolf[n].ycenter = rand() % 420 +30;
           wolf[n].vx = random[rand() % 3];
           wolf[n].vy = random[rand() % 3];
         }
@@ -80,13 +80,15 @@ int main(void){
             for (n=0; n<numWolves; n++) {
               pigsKilled = animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
             }
-            if (pigsKilled >= ((double)(.25 * numPigs)) {
+            if (pigsKilled >= ((double)(.25 * numPigs))) {
+	      gfx_clear();
               displayEndScreen(numPigs,pigsSaved,pigsKilled);
               return 0;
             }
-            if (pigsSaved >= ((double)(.75 * numPigs)) {
+            if (pigsSaved >= ((double)(.75 * numPigs))) {
+	      gfx_clear();
+	      level++;
               displayLevelUp(level);
-              level++;
               numPigs+=2;
               numWolves++;
               pigsSaved=0;
@@ -105,15 +107,13 @@ char *num2str(int number)
   return string;
 }
 void displayLevelUp( int level) {
-  gfx_clear();
+  gfx_color(255,255,255);
   char* levelString = num2str(level);
-  while (1) {
     gfx_text(250,375, "Congratulations! You Passed the Level!");
-    gfx_text(250,385, "Moving on to Level:");
-    gfx_text(250,395, levelString);
+    gfx_text(270,390, "Moving on to Level:");
+    gfx_text(280,405, levelString);
+    gfx_flush();
     usleep(5000000);
-    break;
-  }
 }
 void displayStats(int pigsSaved, int pigsKilled) {
   gfx_color(255,0,0);
@@ -128,13 +128,11 @@ void displayStats(int pigsSaved, int pigsKilled) {
   gfx_text(660, 30, killStr);
 }
 
-void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){
-    gfx_clear();
-    while(1){
-      gfx_text(250,375, "Game over. You failed to save your swine.");
-      usleep(5000000);
-      break;
-    }
+void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){    
+  gfx_color(255,255,255);
+  gfx_text(250,375, "Game over. You failed to save your swine.");
+  gfx_flush();
+  usleep(5000000);
 }
 
 void drawpig(double xcenter, double ycenter){
@@ -179,13 +177,13 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
     }
 
   //wall collision detect
-    if(pig[i].xcenter >= (width-20))
+    if(pig[i].xcenter >= (width-30))
       pig[i].vx = - pig[i].vx;
-    else if( pig[i].xcenter <= 20)
+    else if( pig[i].xcenter <= 30)
       pig[i].vx = -pig[i].vx;
-    else if(pig[i].ycenter >= (height-20))
+    else if(pig[i].ycenter >= (height-30))
       pig[i].vy = -pig[i].vy;
-    else if( pig[i].ycenter <= 20)
+    else if( pig[i].ycenter <= 30)
       pig[i].vy = -pig[i].vy;
 
 
@@ -256,7 +254,6 @@ int animateWolf( wolf_t wolf[], int i, double width, double height, int numWolve
 int checkWolfLocation(pig_t pig[], wolf_t wolf[], int i, int p, int pigsKilled) {
 
   if ((abs(pig[p].xcenter - wolf[i].xcenter) <= 30) && (abs(pig[p].ycenter - wolf[i].ycenter) <= 30)) {
-    printf("%lf %lf\n", pig[p].xcenter, wolf[i].xcenter);
     pig[p].xcenter = 800;
     pig[p].ycenter = 0;
     pig[p].vx = 0;
@@ -269,7 +266,6 @@ int checkWolfLocation(pig_t pig[], wolf_t wolf[], int i, int p, int pigsKilled) 
 int checklocation(pig_t pig[],int i,int pigsSaved){
 
   if((pig[i].xcenter >= 500) && (pig[i].ycenter >= 550)) {
-    printf("%lf %lf\n", pig[i].xcenter, pig[i].ycenter);
     pig[i].xcenter = 800;
     pig[i].ycenter = 0;
     pig[i].vx = 0;
