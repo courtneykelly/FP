@@ -37,20 +37,20 @@ int main(void){
   int numPigs = 4;
   pig_t pig[numPigs];
   gfx_open(width,height,"Save the Swine");
-  //colorFarm();
+  colorFarm();
 
   //initial position and speed of pig 
   for(i=0;i<numPigs;i++) {
     pig[i].xcenter=rand() % 750;
     pig[i].ycenter=rand() % 750;
-    pig[i].vx= rand() % 10 -5;
-    pig[i].vy= rand() % 10 -5;
+    pig[i].vx= rand() % 2 -1;
+    pig[i].vy= rand() % 2 -1;
   }
 
   // Animation Loop
-    while(loop) {
-      gfx_clear();
-      //colorFarm();
+  while(loop) {
+    gfx_clear();
+      colorFarm();
       displayStats(pigsSaved,pigsKilled);
       drawWolf(375,375);
       for (i=0; i<numPigs; i++) {
@@ -111,12 +111,27 @@ void drawpig(double xcenter, double ycenter){
 int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, int pigsKilled,int numPigs){
 
   int x;
-  double dt=.3;
+  double dt=3;
 
   drawpig(pig[i].xcenter,pig[i].ycenter);
   gfx_flush();
   pig[i].xcenter=pig[i].xcenter + pig[i].vx*dt;
   pig[i].ycenter=pig[i].ycenter + pig[i].vy*dt;
+
+  //pig collision detect                                                                                             
+  for(x=(i+1);x<numPigs;x++){
+    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
+      pig[i].vy= rand() % 2 -1;
+      pig[i].vx = rand() % 2 -1;
+    } 
+  }
+  for(x=0;x<i;x++){
+    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
+      pig[i].vy= rand() % 2 -1;
+      pig[i].vx = rand() % 2 -1;
+    } 
+
+  }
 
   //wall collision detect
   if(pig[i].xcenter >= (width-20))
@@ -128,22 +143,9 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
   else if( pig[i].ycenter <= 20)
     pig[i].vy = -pig[i].vy;
 
-  //pig collision detect
-  for(x=(i+1);x<numPigs;x++){
-    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
-      pig[i].vx = - pig[i].vx;
-      pig[i].vy = - pig[i].vy;
-      }
-    }
-  for(x=0;x<i;x++){
-    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
-      pig[i].vx = - pig[i].vx;
-      pig[i].vy = - pig[i].vy;
-      }
-    }
 
    gfx_flush();
-   usleep(1000);
+   usleep(10000);
 
    pigsSaved = checklocation(pig,i,pigsSaved);
 
@@ -175,22 +177,46 @@ void mouseEffect(pig_t pig[],int numPigs){
 
   if(gfx_event_waiting()) {
     event=gfx_wait();
-    if(event==1){
+    if(event==3){
       xmouse = gfx_xpos();
       ymouse = gfx_ypos();
       for(x=0;x<numPigs;x++) {
 	if((abs(xmouse - pig[x].xcenter) <= 100) && (abs(ymouse - pig[x].ycenter) <= 100)) {
-	  if(pig[x].ycenter != ymouse){
-	    pig[x].vy = - ((ymouse - pig[x].ycenter) / (xmouse - pig[x].xcenter));
-	    pig[x].vx = 1; 
+	  if((pig[x].ycenter < ymouse) && (pig[x].xcenter < xmouse)) {
+	      pig[x].vx = -1;
+	      pig[x].vy = -1;
+	    }
+	  else if((pig[x].ycenter > ymouse) && (pig[x].xcenter < xmouse)) {
+		pig[x].vx = -1;
+		pig[x].vy = 1;
+	    }
+	  else if((pig[x].ycenter > ymouse) && (pig[x].xcenter > xmouse)) {
+	    pig[x].vx = 1;
+	    pig[x].vy = 1;
 	  }
-	  else if((pig[x].ycenter == ymouse) && (xmouse > pig[x].xcenter)) {
-	    pig[x].vy = 0;
-	    pig[x].vx = -1;
+	  else if((pig[x].ycenter < ymouse) && (pig[x].xcenter > xmouse)) {
+	    pig[x].vx = 1;
+	    pig[x].vy = -1;
 	  }
-	  else if((pig[x].ycenter == ymouse) &&(xmouse < pig[x].xcenter)) {
+	  else if((pig[x].ycenter < ymouse) && (pig[x].xcenter == xmouse)) {
+	    pig[x].vx = 0;
+	    pig[x].vy = -1;
+	  }
+	  else if((pig[x].ycenter > ymouse) && (pig[x].xcenter == xmouse)) {
+            pig[x].vx = 0;
+            pig[x].vy = 1;
+          }
+	  else if((pig[x].xcenter < xmouse) && (pig[x].ycenter == ymouse)) {
+            pig[x].vx = -1;
             pig[x].vy = 0;
+          }
+	  else if((pig[x].xcenter > xmouse) && (pig[x].ycenter == ymouse)) {
             pig[x].vx = 1;
+            pig[x].vy = 0;
+          }
+	  else if((pig[x].xcenter == xmouse) && (pig[x].ycenter == ymouse)) {
+            pig[x].vx = 0;
+            pig[x].vy = 0;
           }
 	}
       }
