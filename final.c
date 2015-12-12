@@ -50,20 +50,17 @@ int main(void){
   // Animation Loop
   while(loop) {
     gfx_clear();
-      colorFarm();
+    //colorFarm();
       displayStats(pigsSaved,pigsKilled);
       drawWolf(375,375);
       for (i=0; i<numPigs; i++) {
         pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
       }
-      /*if(pigsSaved == numPigs) {
+      if(pigsSaved == numPigs) {
 	displayEndScreen(numPigs,pigsSaved,pigsKilled);
-	numPigs+=3;
-	pigsSaved=0;
-	pigsKilled = 0;
-    
-	}*/
+	}
     }
+
 
 }
 
@@ -89,8 +86,18 @@ void displayStats(int pigsSaved, int pigsKilled) {
 
 void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){
   if(numPigs == pigsSaved) {  
-    gfx_text(375, 375, "Congratulations!! You passed the level!");
+    gfx_clear();
+    while(1){
+    gfx_text(250, 375, "Congratulations!! You passed the level!");
+    }
   }
+  if(numPigs == pigsKilled) {
+    gfx_clear();
+    while(1){
+      gfx_text(250,375, "Game over.");
+    }
+  }
+
 
 }
 
@@ -177,7 +184,7 @@ void mouseEffect(pig_t pig[],int numPigs){
 
   if(gfx_event_waiting()) {
     event=gfx_wait();
-    if(event==3){
+    if(event==1){
       xmouse = gfx_xpos();
       ymouse = gfx_ypos();
       for(x=0;x<numPigs;x++) {
