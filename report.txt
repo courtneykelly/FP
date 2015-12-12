@@ -1,0 +1,46 @@
+
+Courtney Kelly and Katie Schermerhorn
+final.c Report
+
+User's Perspective
+	From the user's perspective this program works as an interactive game. The purpose of the game is for the user to get the pigs to the barn before the wolf can eat them. The pigs move around randomly, as do the wolves, and if any of the pigs come into contact with a wolf, it is "eaten" and disappears. There are stats in the top corners of the game, which display the number of pigs you've saved and the number of pigs you've killed. There are conditions to get to the next level. If the number of pigs saved equals the floor(.75 *total number of pigs) you advance to the next level. But if the number of pigs killed equals .25 * the total number of pigs you lose and the game is over. At each level advancement, two more pigs are added, and one more wolf is added.
+
+Programmer's Perspective
+	Internally this program utilizes two structs and 13 functions. In our main function, we frist initialize all of our variables. Then we enter a nexted while loop. Two while loops were necessary in order to have successful creation of new levels with more pigs and wolfs. This is why when you first enter the loop our program initializes the two structs, one for the pigs and one for the wolves. It then initalizes each pig and wolf's position and speed randomly. It then enters the second loop, which is our animation loop. It first clears the window, then recolors the background of the farm, and displays the stats (pigsKilled and pigsSaved). It then goes through two for loops, one to animate the pigs and one to animate the wolves. Next it checks to see if the number of pigs saved and killed either meets the condition to level up or to end the game. If number of pigs killed is greater than .25*(total number of pigs) our program displays and end screen, telling the user they lost. If the number of pigs saved is greater or equal to the floor(.75*(total number of pigs)) our program displays a screen that tells the user they've advanced to the next level, increments the number of pigs by 2 and the number of wolves by 1. It also resets the number of pigs saved and killed to 0. Finally the sets loop2=0 in order to break of the nested while loop and "start over", reonitializing all of the structs and motion of the pigs and wolves.
+
+	Functions:
+	char *num2str(int);
+		This functions converts a number to a string. We utilized this in our other display functions.
+	void displayStats(int,int);
+		This functions displays the number of pigs killed and the number of pigs saved in the top corners of the animation window. 
+	void displayEndScreen(int, int, int);
+		The function tells the user that they've lost the game, and quits the program entirely. 
+	void drawpig(double,double);
+		This function draws a pig based on the x and y coordinates of the pig's center. Each pig has a radius of 20 pixels, which is taken into account when the wolve "eats" the pig.
+	int animatepig(pig_t pig[], int, double, double,int,int,int);
+		This function uses a dt value of 3 to move each pig based on it's current coordinates and it's current speed. It then checks the pig's new position with that of all the other pigs and the "walls" of the window. If the pig's center is <=30 pixels, then the direction of the pig changes by multiplying it's speed by -1. This function then uses usleep to pause the drawing for .01 seconds, creating the animation effect. It then uses another function "checkLoaction" to check if the pig as made it to the barn. It then calls another function mouseEffect, to move the pigs based on where the user has clicked their mouse. This function returns the number of pigs saved to main in order to have the correct stats displayed.
+	void mouseEffect(pig_t pig[],int);
+		This function uses gfx_event_waiting to check if the user has clicked their mouse.  If the user clicks within 100 pixels of a pig, it will change the velocity of the pig depending on the location of the click with respect to the pig's position. 
+	int checklocation(pig_t pig[],int ,int);
+		This function checks to see if a pig is in the barn. If it has it makes it "disappear" by moving to a position outside the window.
+	void fern(double, double, double, double);
+		We utilized our fern function from lab9 for our drawing of the farm.
+	void colorFarm();
+		This function draws the background of the farm, piece my piece, line by line. 
+	void drawWolf(double, double);
+		This function was terrible. We made our own sprite for the wold and had to color it pixel by pixel based on one center point. This took forever, and were disappionted with how small the wolves turned out.
+	int animateWolf(wolf_t wolf[], int, double, double, int, pig_t pig[], int, int);
+		This function works the same as animatePig. However, it also checks to see if the wolves have collided with the barn. If They have, then the wolves change direction.
+	int checkWolfLocation(pig_t pig[], wolf_t wolf[], int,int, int);
+		This function checks to see if a wolf has come close enought to a pig to "eat" it. If it has (comes within 30 pixels) then the pig "disappears" and the pigsKilled count is incremented.
+	void displayLevelUp(int);
+		This function displays the congratulations that the user has moved to the next level, and the next level number.
+
+	Correctness
+		We tested our program for correctness by running a million times. The blinking is a problem we attributed to this school's poor network.
+
+
+xoxo,
+Courtney and Katie
+
+P.S. Sorry this report is so long.
