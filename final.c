@@ -33,7 +33,7 @@ int checklocation(pig_t pig[],int ,int);
 void fern(double, double, double, double);
 void colorFarm();
 void drawWolf(double, double);
-void animateWolf(wolf_t wolf[], int, double, double, int, pig_t pig[], int, int);
+int animateWolf(wolf_t wolf[], int, double, double, int, pig_t pig[], int, int);
 int checkWolfLocation(pig_t pig[], wolf_t wolf[], int,int, int);
 
 int main(void){
@@ -69,12 +69,11 @@ int main(void){
       gfx_clear();
       //colorFarm();
         displayStats(pigsSaved,pigsKilled);
-        drawWolf(375,375);
         for (i=0; i<numPigs; i++) {
           pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
         }
         for (n=0; n<numWolves; n++) {
-          animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
+          pigsKilled = animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
         }
         if(pigsSaved == numPigs) {
           displayEndScreen(numPigs,pigsSaved,pigsKilled);
@@ -179,7 +178,7 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
    return pigsSaved;                                              
  }
 
-void animateWolf( wolf_t wolf[], int i, double width, double height, int numWolves, pig_t pig[], int numPigs, int pigsKilled) {
+int animateWolf( wolf_t wolf[], int i, double width, double height, int numWolves, pig_t pig[], int numPigs, int pigsKilled) {
   int x;
   double dt = 3;
   
@@ -217,16 +216,17 @@ void animateWolf( wolf_t wolf[], int i, double width, double height, int numWolv
   // Pig Collision Detect
     int p;
     for (p=0; p<numPigs; p++) {
-      pigsKilled = checkWolfLocation(pig, wolf, i, p, pigsKilled)
+      pigsKilled = checkWolfLocation(pig, wolf, i, p, pigsKilled);
     }
 
   gfx_flush();
   usleep(10000);
 
+  return pigsKilled;
 }
 int checkWolfLocation(pig_t pig[], wolf_t wolf[], int i, int p, int pigsKilled) {
 
-  if (abs(pig[p].xcenter - wolf[i].xcenter) <= 20) {
+  if (abs(pig[p].xcenter - wolf[i].xcenter) <= 5) {
     pig[p].xcenter = 800;
     pig[p].ycenter = 0;
     pig[p].vx = 0;
