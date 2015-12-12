@@ -32,7 +32,7 @@ void mouseEffect(pig_t pig[],int);
 int checklocation(pig_t pig[],int ,int);
 void fern(double, double, double, double);
 void colorFarm();
-void drawWolf(int, int);
+void drawWolf(double, double);
 void animateWolf(wolf_t wolf[], int, double, double, int);
 
 int main(void){
