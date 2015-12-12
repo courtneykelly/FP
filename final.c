@@ -1,6 +1,8 @@
 //Final Project
 //Save the swine
-//Katie Schermerhorn and Courtney Kelly
+//Creators: Katie Schermerhorn and Courtney Kelly
+
+//The object of the game is to herd the pigs into the barn before they are eaten by the wolves.  You herd the pigs by clicking the mouse near the pig, causing it to move in the opposite direction.  If you save 75% of the pigs, you win the level.  If 25% of the pigs are eaten, you lose the game.  Every level increases the number of wolves by 1 and the number of pigs by 2.  
 
 
 #include <stdio.h>
@@ -9,6 +11,7 @@
 #include <stdlib.h>
 #include "gfx4.h"
 
+//Will be used to form an array of structs for the pigs and wolves
 typedef struct pig {
   double xcenter;
   double ycenter;
@@ -25,7 +28,7 @@ typedef struct wolf {
 
 char *num2str(int);
 void displayStats(int,int);
-void displayEndScreen(int, int, int);
+void displayEndScreen();
 void drawpig(double,double);
 int animatepig(pig_t pig[], int, double, double,int,int,int);
 void mouseEffect(pig_t pig[],int);
@@ -44,15 +47,16 @@ int main(void){
     double width = 750;
     gfx_open(width,height,"Save the Swine");
     int i, n, loop1=1, loop2; 
-    int pigsSaved=0, pigsKilled=0, numPigs = 4, numWolves = 2, level=1;
-    double random[4] = {-1,1,-2,2};
+    int pigsSaved=0, pigsKilled=0, numPigs = 4, numWolves = 2, level=1; //initialized to level one
+    double random[4] = {-1,1,-2,2}; //speeds of pigs and wolves
+
 
     while(loop1){
 
       pig_t pig[numPigs];
       wolf_t wolf[numWolves];
 
-      //initial position and speed of pig 
+      //initial position and speed of pigs 
         for(i=0;i<numPigs;i++) {
           pig[i].xcenter=rand() % 680 +30;
           pig[i].ycenter=rand() % 420 +30;
@@ -73,24 +77,30 @@ int main(void){
         while(loop2) {
           gfx_clear();
           colorFarm();
-          displayStats(pigsSaved,pigsKilled);
+          displayStats(pigsSaved,pigsKilled); //Displays on upper right and left corners
+	  //Animate pigs
             for (i=0; i<numPigs; i++) {
               pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
             }
+	    //Animate wolves
             for (n=0; n<numWolves; n++) {
               pigsKilled = animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
             }
+	    //if the number of pigs killed is greater or equal to 25% of the total number of pigs, game over
             if (pigsKilled >= ((double)(.25 * numPigs))) {
 	      gfx_clear();
-              displayEndScreen(numPigs,pigsSaved,pigsKilled);
+              displayEndScreen();
               return 0;
             }
+	    //if the number of pigs saved is greater or equal to 75% of the total number of pigs, advance level
             if (pigsSaved >= floor(((double)(.75 * numPigs)))) {
 	      gfx_clear();
 	      level++;
               displayLevelUp(level);
-              numPigs+=2;
+              //Add 2 pigs and 1 wolf
+	      numPigs+=2;
               numWolves++;
+	      //Reset saved and kill count
               pigsSaved=0;
               pigsKilled=0;
               loop2=0;
@@ -100,12 +110,15 @@ int main(void){
 
 }
 
+//converts numbers to strings in order to display
 char *num2str(int number)
 {
   static char a[10], *string=a;
   snprintf(string,10,"%d",number);
   return string;
 }
+
+//displays congratulations screen, then moves up level
 void displayLevelUp( int level) {
   gfx_color(255,255,255);
   char* levelString = num2str(level);
@@ -113,8 +126,10 @@ void displayLevelUp( int level) {
     gfx_text(270,390, "Moving on to Level:");
     gfx_text(280,405, levelString);
     gfx_flush();
-    usleep(5000000);
+    usleep(5000000);//wait 5 seconds
 }
+
+//displays save and kill counts on the upper right and left corners
 void displayStats(int pigsSaved, int pigsKilled) {
   gfx_color(255,0,0);
   char *saveStr, *killStr;
@@ -128,11 +143,12 @@ void displayStats(int pigsSaved, int pigsKilled) {
   gfx_text(660, 30, killStr);
 }
 
-void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){    
+//displays game over screen, then quits
+void displayEndScreen(){    
   gfx_color(255,255,255);
   gfx_text(250,375, "Game over. You failed to save your swine.");
   gfx_flush();
-  usleep(5000000);
+  usleep(5000000);//wait 5 seconds
 }
 
 void drawpig(double xcenter, double ycenter){
@@ -190,9 +206,9 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
    gfx_flush();
    usleep(10000);
 
-   pigsSaved = checklocation(pig,i,pigsSaved);
+   pigsSaved = checklocation(pig,i,pigsSaved);//Checks to see if pig is in barn
 
-   mouseEffect(pig,numPigs);
+   mouseEffect(pig,numPigs);//Checks for user interaction
 
    return pigsSaved;                                              
  }
@@ -251,6 +267,8 @@ int animateWolf( wolf_t wolf[], int i, double width, double height, int numWolve
 
   return pigsKilled;
 }
+
+//checks to see if wolf is in eating range of pig
 int checkWolfLocation(pig_t pig[], wolf_t wolf[], int i, int p, int pigsKilled) {
 
   if ((abs(pig[p].xcenter - wolf[i].xcenter) <= 30) && (abs(pig[p].ycenter - wolf[i].ycenter) <= 30)) {
@@ -263,6 +281,7 @@ int checkWolfLocation(pig_t pig[], wolf_t wolf[], int i, int p, int pigsKilled) 
   return pigsKilled;
 }
 
+//checks to see if pig is in barn
 int checklocation(pig_t pig[],int i,int pigsSaved){
 
   if((pig[i].xcenter >= 500) && (pig[i].ycenter >= 550)) {
@@ -290,6 +309,7 @@ void mouseEffect(pig_t pig[],int numPigs){
       ymouse = gfx_ypos();
       for(x=0;x<numPigs;x++) {
 	if((abs(xmouse - pig[x].xcenter) <= 100) && (abs(ymouse - pig[x].ycenter) <= 100)) {
+	  //compares to position of mouse to position of pig
 	  if((pig[x].ycenter < ymouse) && (pig[x].xcenter < xmouse)) {
 	      pig[x].vx = -1;
 	      pig[x].vy = -1;
