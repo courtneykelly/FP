@@ -34,6 +34,7 @@ void fern(double, double, double, double);
 void colorFarm();
 void drawWolf(double, double);
 void animateWolf(wolf_t wolf[], int, double, double, int);
+int checkWolfLocation(pig_t pig[], wolf_t wolf[], int,int, pig_t pig[], int, int, int);
 
 int main(void){
 
@@ -73,7 +74,7 @@ int main(void){
           pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
         }
         for (n=0; n<numWolves; n++) {
-          animateWolf(wolf,n,width,height,numWolves);
+          animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
         }
         if(pigsSaved == numPigs) {
           displayEndScreen(numPigs,pigsSaved,pigsKilled);
@@ -116,8 +117,6 @@ void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){
       gfx_text(250,375, "Game over.");
     }
   }
-
-
 }
 
 void drawpig(double xcenter, double ycenter){
@@ -145,29 +144,29 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
   pig[i].ycenter=pig[i].ycenter + pig[i].vy*dt;
 
   //pig collision detect                                                                                             
-  for(x=(i+1);x<numPigs;x++){
-    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
-      pig[i].vy= rand() % 2 -1;
-      pig[i].vx = rand() % 2 -1;
-    } 
-  }
-  for(x=0;x<i;x++){
-    if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
-      pig[i].vy= rand() % 2 -1;
-      pig[i].vx = rand() % 2 -1;
-    } 
+    for(x=(i+1);x<numPigs;x++){
+      if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
+        pig[i].vy= rand() % 2 -1;
+        pig[i].vx = rand() % 2 -1;
+      } 
+    }
+    for(x=0;x<i;x++){
+      if((abs(pig[i].xcenter - pig[x].xcenter) <= 50) && (abs(pig[i].ycenter - pig[x].ycenter) <= 50)){
+        pig[i].vy= rand() % 2 -1;
+        pig[i].vx = rand() % 2 -1;
+      } 
 
-  }
+    }
 
   //wall collision detect
-  if(pig[i].xcenter >= (width-20))
-    pig[i].vx = - pig[i].vx;
-  else if( pig[i].xcenter <= 20)
-    pig[i].vx = -pig[i].vx;
-  else if(pig[i].ycenter >= (height-20))
-    pig[i].vy = -pig[i].vy;
-  else if( pig[i].ycenter <= 20)
-    pig[i].vy = -pig[i].vy;
+    if(pig[i].xcenter >= (width-20))
+      pig[i].vx = - pig[i].vx;
+    else if( pig[i].xcenter <= 20)
+      pig[i].vx = -pig[i].vx;
+    else if(pig[i].ycenter >= (height-20))
+      pig[i].vy = -pig[i].vy;
+    else if( pig[i].ycenter <= 20)
+      pig[i].vy = -pig[i].vy;
 
 
    gfx_flush();
@@ -177,10 +176,10 @@ int animatepig(pig_t pig[], int i, double width, double height, int pigsSaved, i
 
    mouseEffect(pig,numPigs);
 
-   return pigsSaved;
-                                                  
+   return pigsSaved;                                              
  }
-void animateWolf( wolf_t wolf[], int i, double width, double height, int numWolves) {
+
+void animateWolf( wolf_t wolf[], int i, double width, double height, int numWolves, pig_t pig[], int numPigs, int pigsKilled) {
   int x;
   double dt = 3;
   
@@ -215,10 +214,28 @@ void animateWolf( wolf_t wolf[], int i, double width, double height, int numWolv
     else if( wolf[i].ycenter <= 20)
       wolf[i].vy = -wolf[i].vy;
 
+  // Pig Collision Detect
+    int p;
+    for (p=0; p<numPigs; p++) {
+      pigsKilled = checkWolfLocation(pig, wolf, i, p, pigsKilled)
+    }
+
   gfx_flush();
   usleep(10000);
 
 }
+int checkWolfLocation(pig_t pig[], wolf_t wolf[], int i, int p, int pigsKilled) {
+
+  if (abs(pig[p].xcenter - wolf[i].xcenter) <= 20) {
+    pig[p].xcenter = 800;
+    pig[p].ycenter = 0;
+    pig[p].vx = 0;
+    pig[p].vy = 0;
+    pigsKilled++;
+  }
+  return pigsKilled;
+}
+
 int checklocation(pig_t pig[],int i,int pigsSaved){
 
   if((pig[i].xcenter >= 500) && (pig[i].ycenter >= 550)) {
