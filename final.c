@@ -85,7 +85,7 @@ int main(void){
               displayEndScreen(numPigs,pigsSaved,pigsKilled);
               return 0;
             }
-            if (pigsSaved >= ((double)(.75 * numPigs))) {
+            if (pigsSaved >= floor(((double)(.75 * numPigs)))) {
 	      gfx_clear();
 	      level++;
               displayLevelUp(level);
