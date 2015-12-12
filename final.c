@@ -35,6 +35,7 @@ void colorFarm();
 void drawWolf(double, double);
 int animateWolf(wolf_t wolf[], int, double, double, int, pig_t pig[], int, int);
 int checkWolfLocation(pig_t pig[], wolf_t wolf[], int,int, int);
+void displayLevelUp(int);
 
 int main(void){
 
@@ -42,47 +43,57 @@ int main(void){
     double height= 750;
     double width = 750;
     gfx_open(width,height,"Save the Swine");
-    int i, n, loop=1; 
-    int pigsSaved=0, pigsKilled=0, numPigs = 4, numWolves = 2;
+    int i, n, loop1=1, loop2; 
+    int pigsSaved=0, pigsKilled=0, numPigs = 4, numWolves = 2, level=1;
     double random[4] = {-1,1,-2,2};
 
-    while(loop){
+    while(loop1){
 
       pig_t pig[numPigs];
       wolf_t wolf[numWolves];
 
-  //initial position and speed of pig 
-    for(i=0;i<numPigs;i++) {
-      pig[i].xcenter=rand() % 750;
-      pig[i].ycenter=rand() % 750;
-      pig[i].vx= random[rand() % 1];
-      pig[i].vy= random[rand() % 1];
-    }
-
-  // Initial Position and Speed of the Wolves
-    for (n=0; n<numWolves; n++) {
-      wolf[n].xcenter = rand() % 750;
-      wolf[n].ycenter = rand() % 750;
-      wolf[n].vx = random[rand() % 3];
-      wolf[n].vy = random[rand() % 3];
-    }
-
-  // Animation Loop
-    while(loop) {
-      gfx_clear();
-      colorFarm();
-        displayStats(pigsSaved,pigsKilled);
-        for (i=0; i<numPigs; i++) {
-          pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
+      //initial position and speed of pig 
+        for(i=0;i<numPigs;i++) {
+          pig[i].xcenter=rand() % 750;
+          pig[i].ycenter=rand() % 750;
+          pig[i].vx= random[rand() % 1];
+          pig[i].vy= random[rand() % 1];
         }
+
+      // Initial Position and Speed of the Wolves
         for (n=0; n<numWolves; n++) {
-          pigsKilled = animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
+          wolf[n].xcenter = rand() % 750;
+          wolf[n].ycenter = rand() % 750;
+          wolf[n].vx = random[rand() % 3];
+          wolf[n].vy = random[rand() % 3];
         }
-        if (pigsKilled >= (.25 * numPigs)) {
-          displayEndScreen(numPigs,pigsSaved,pigsKilled);
-	  return 0;
+
+      // Animation Loop
+        loop2=1;
+        while(loop2) {
+          gfx_clear();
+          colorFarm();
+          displayStats(pigsSaved,pigsKilled);
+            for (i=0; i<numPigs; i++) {
+              pigsSaved = animatepig(pig,i,width,height,pigsSaved,pigsKilled,numPigs);
+            }
+            for (n=0; n<numWolves; n++) {
+              pigsKilled = animateWolf(wolf, n, width, height, numWolves, pig, numPigs, pigsKilled);
+            }
+            if (pigsKilled >= ((double)(.25 * numPigs)) {
+              displayEndScreen(numPigs,pigsSaved,pigsKilled);
+              return 0;
+            }
+            if (pigsSaved >= ((double)(.75 * numPigs)) {
+              displayLevelUp(level);
+              level++;
+              numPigs+=2;
+              numWolves++;
+              pigsSaved=0;
+              pigsKilled=0;
+              loop2=0;
+            }
         }
-    }
     }
 
 }
@@ -93,7 +104,17 @@ char *num2str(int number)
   snprintf(string,10,"%d",number);
   return string;
 }
-
+void displayLevelUp( int level) {
+  gfx_clear();
+  char* levelString = num2str(level);
+  while (1) {
+    gfx_text(250,375, "Congratulations! You Passed the Level!");
+    gfx_text(250,385, "Moving on to Level:");
+    gfx_text(250,395, levelString);
+    usleep(5000000);
+    break;
+  }
+}
 void displayStats(int pigsSaved, int pigsKilled) {
   gfx_color(255,0,0);
   char *saveStr, *killStr;
@@ -111,8 +132,9 @@ void displayEndScreen(int numPigs, int pigsSaved, int pigsKilled){
     gfx_clear();
     while(1){
       gfx_text(250,375, "Game over. You failed to save your swine.");
+      usleep(5000000);
+      break;
     }
-    usleep(5000000);
 }
 
 void drawpig(double xcenter, double ycenter){
